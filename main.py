@@ -25,14 +25,16 @@ def main():
     # face_cascade = cv2.CascadeClassifier('../SAVI TP1/haarcascade_frontalface_default.xml')
 
     # face_database = []
+    sfr = SimpleFacerec()
 
     if args['use_database']:
-        sfr = SimpleFacerec()
         sfr.load_encoding_images("Faces/")
         # face_rafael = cv2.imread('../SAVI TP1/Rafael.jpg')
         # rgb_face_rafael = cv2.cvtColor(face_rafael, cv2.COLOR_BGR2RGB)
         # face_rafael_encode = face_recognition.face_encodings(rgb_face_rafael)[0]
         # face_database.append(face_rafael_encode)
+    else:
+        sfr.load_encoding_images("Made_Up_File_Name")
 
     video = cv2.VideoCapture(0)
 
@@ -40,7 +42,9 @@ def main():
     # Execution
     # -----------------------------------------------------
 
-    print('Press "q" to quit the program')
+    print('\nPress "q" to quit the program')
+    print('Press "d" to show the Database')
+    print('Press "h" to show these instructions')
 
     while True:
 
@@ -87,9 +91,26 @@ def main():
         # Display the resulting frame
         cv2.imshow('image', image_gui)
 
+        key = cv2.waitKey(1)
+
         # The 'q' button is set as the quitting button
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if key == ord('q'):
             break
+
+        # The 'd' button is used to show the database
+        if key == ord('d'):
+            print('\nFace Recognition Database')
+            print('--------------------------------------------')
+            for name in zip(face_names):
+                print(name)
+
+            print('--------------------------------------------')
+
+        # The 'h' button is used to show the instructions
+        if key == ord('h'):
+            print('\nPress "q" to quit the program')
+            print('Press "d" to show the Database')
+            print('Press "h" to show these instructions')
 
     # -----------------------------------------------------
     # Termination
