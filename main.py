@@ -16,42 +16,41 @@ def main():
     # Initialization
     # -----------------------------------------------------
 
+    # Setting up the arguments
     parser = argparse.ArgumentParser(description='Face Detector and Recogniser')  # arguments
     parser.add_argument('-ud', '--use_database', type=bool, required=True,
                         help='use the already made database of faces to recognise.\n ')
     args = vars(parser.parse_args())
 
-    # Load the cascade
-    # face_cascade = cv2.CascadeClassifier('../SAVI TP1/haarcascade_frontalface_default.xml')
-
-    # face_database = []
     sfr = SimpleFacerec()
 
+    # If user wants to use the Database
     if args['use_database']:
         sfr.load_encoding_images("Faces/")
-        # face_rafael = cv2.imread('../SAVI TP1/Rafael.jpg')
-        # rgb_face_rafael = cv2.cvtColor(face_rafael, cv2.COLOR_BGR2RGB)
-        # face_rafael_encode = face_recognition.face_encodings(rgb_face_rafael)[0]
-        # face_database.append(face_rafael_encode)
     else:
+        # Else use a wrong file name to not find any images
         sfr.load_encoding_images("Made_Up_File_Name")
 
+    # Start video
     video = cv2.VideoCapture(0)
+
+    # Show commands
+    print('\nProgram Commands')
+    print('\nPress "q" to quit the program')
+    print('Press "d" to show the Database')
+    print('Press "h" to show these instructions')
 
     # -----------------------------------------------------
     # Execution
     # -----------------------------------------------------
 
-    print('\nPress "q" to quit the program')
-    print('Press "d" to show the Database')
-    print('Press "h" to show these instructions')
-
+    # Video Cycle
     while True:
-
-        # result = False
 
         # Capture the video frame by frame
         ret, frame = video.read()
+
+        # Copy original image
         image_gui = copy.deepcopy(frame)
 
         # Detect Faces
@@ -59,38 +58,14 @@ def main():
         for face_loc, name in zip(face_locations, face_names):
             y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
 
+            # Draw rectangle and name
             cv2.putText(image_gui, name, (x1, y1 - 5), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
             cv2.rectangle(image_gui, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-        # Make a copy of the original image
-        # image_gui = deepcopy(image)
-
-        # Convert to grayscale
-        # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-        # Detect the faces
-        # faces = face_cascade.detectMultiScale(gray, 1.1, 4, minSize=(250, 250))
-
-        # Draw the rectangle around each face
-        # for (x, y, w, h) in faces:
-        #     cv2.rectangle(image_gui, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        #
-        # print(faces)
-
-        # print(face_database)
-
-        # if faces is not None:
-        #     image_gui_rgb = cv2.cvtColor(image_gui, cv2.COLOR_BGR2RGB)
-        #     image_gui_encoded = face_recognition.face_encodings(image_gui_rgb)[0]
-        #     # result = face_recognition.compare_faces([face_rafael_encode], image_gui_encoded, tolerance=0.6)
-
-        # if result:
-        #     cv2.putText(image_gui, 'Rafael Siopa', (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2,
-        #                 cv2.LINE_AA)
-
-        # Display the resulting frame
+        # Display the resulting image
         cv2.imshow('image', image_gui)
 
+        # Wait for the video
         key = cv2.waitKey(1)
 
         # The 'q' button is set as the quitting button
@@ -101,13 +76,13 @@ def main():
         if key == ord('d'):
             print('\nFace Recognition Database')
             print('--------------------------------------------')
-            for name in zip(face_names):
-                print(name)
-
+            for name in face_names:
+                print(str(name))
             print('--------------------------------------------')
 
         # The 'h' button is used to show the instructions
         if key == ord('h'):
+            print('\nProgram Commands')
             print('\nPress "q" to quit the program')
             print('Press "d" to show the Database')
             print('Press "h" to show these instructions')
@@ -118,6 +93,7 @@ def main():
 
     # After the loop release the cap object
     video.release()
+
     # Destroy all the windows
     cv2.destroyAllWindows()
 
