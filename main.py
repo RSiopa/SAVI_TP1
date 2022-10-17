@@ -35,6 +35,10 @@ def main():
     # Start video
     video = cv2.VideoCapture(0)
 
+    # video.set(3, 1280)
+    # video.set(4, 720)
+    # video.set(cv2.CAP_PROP_FPS, 5)
+
     # Show commands
     print('\nProgram Commands')
     print('\nPress "q" to quit the program')
