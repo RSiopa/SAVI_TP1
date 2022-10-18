@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 import copy
-from copy import deepcopy
 import cv2
 import argparse
-import numpy as np
-import csv
-import argparse
-import face_recognition
 from simple_facerec import SimpleFacerec
 import shutil
 import os
+import pyttsx3
 
 
 def main():
@@ -24,28 +20,36 @@ def main():
                         help='use the already made database of faces to recognise.\n ')
     args = vars(parser.parse_args())
 
+    # Paths of Databases
+    database_path = 'Faces/'
+    no_database_path = 'No_Database/'
+
     sfr = SimpleFacerec()
+
     # If user wants to use the Database
     if args['use_database']:
-        sfr.load_encoding_images("Faces/")
+        sfr.load_encoding_images(database_path)
     else:
         # Else use an empty folder to not find any images
-        sfr.load_encoding_images("No_Database/")
+        sfr.load_encoding_images(no_database_path)
 
     # Start video
     video = cv2.VideoCapture(0)
 
-    # video.set(3, 1280)
-    # video.set(4, 720)
-    # video.set(cv2.CAP_PROP_FPS, 5)
+    # Initiate the text to speech
+    # engine = pyttsx3.init()
 
     # Show commands
     print('\nProgram Commands')
     print('\nPress "q" to quit the program')
     print('Press "d" to show the Database')
     print('Press "h" to show these instructions')
+    print('Press "p" to take a picture and add it to Database')
 
+    # Initialize some variables to be used in the program
     error_time_counter = 0
+    last_face_names = None
+    picture_countdown = 3
 
     # -----------------------------------------------------
     # Execution
@@ -69,6 +73,19 @@ def main():
                 # Draw rectangle and name
                 cv2.putText(image_gui, name, (x1, y1 - 5), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
                 cv2.rectangle(image_gui, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+                # Prevent the spam a bit
+                if not face_names == last_face_names:
+                    if name == 'Unknown':
+                        # Ask to add face to Database
+                        print('Hello, I do not know you.\nCould you take a picture with "p" and introduce yourself?')
+                    else:
+                        print('Hello, ' + str(name))
+                        # engine.say('Hello, ' + str(name))
+                        # engine.runAndWait()
+
+            last_face_names = face_names
+
         except:
             # If Database directory has no pictures with faces
             if error_time_counter == 0:
@@ -103,6 +120,29 @@ def main():
             print('\nPress "q" to quit the program')
             print('Press "d" to show the Database')
             print('Press "h" to show these instructions')
+            print('Press "p" to take a picture and add it to Database')
+
+        # The 'p' button is used to take a picture and add it to the Database
+        if key == ord('p') or picture_countdown != 3:
+            # Shows countdown
+            print(picture_countdown)
+            picture_countdown -= 1
+            if picture_countdown == 0:
+                cv2.imshow('image', frame)
+                print('Snap!')
+                new_name = input("What is your name? ")
+                # After adding a new picture, loads the pictures in the folder again
+                if args['use_database']:
+                    # Using the Database, only need to write image in Database
+                    cv2.imwrite(os.path.join(database_path, new_name + '.png'), frame)
+                    sfr.load_encoding_images(database_path)
+                else:
+                    # Not using Database, image will be added to the empty Database
+                    cv2.imwrite(os.path.join(no_database_path, new_name + '.png'), frame)
+                    sfr.load_encoding_images(no_database_path)
+
+                # Return picture_countdown to original value
+                picture_countdown = 3
 
     # -----------------------------------------------------
     # Termination
