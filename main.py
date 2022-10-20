@@ -6,6 +6,8 @@ from simple_facerec import SimpleFacerec
 import shutil
 import os
 import pyttsx3
+from colorama import Fore, Back, Style
+
 
 
 def main():
@@ -41,10 +43,10 @@ def main():
 
     # Show commands
     print('\nProgram Commands')
-    print('\nPress "q" to quit the program')
-    print('Press "d" to show the Database')
-    print('Press "h" to show these instructions')
-    print('Press "p" to take a picture and add it to Database')
+    print(Fore.BLACK + Back.RED + '\nPress "q" to quit the program')
+    print(Fore.BLACK + Back.BLUE + 'Press "d" to show the Database')
+    print(Fore.BLACK + Back.YELLOW + 'Press "h" to show these instructions')
+    print(Fore.BLACK + Back.GREEN + 'Press "p" to take a picture and add it to Database')
 
     # Initialize some variables to be used in the program
     error_time_counter = 0
@@ -78,9 +80,9 @@ def main():
                 if not face_names == last_face_names:
                     if name == 'Unknown':
                         # Ask to add face to Database
-                        print('Hello, I do not know you.\nCould you take a picture with "p" and introduce yourself?')
+                        print(Fore.GREEN + 'Hello, I do not know you.\nCould you take a picture with "p" and introduce yourself?')
                     else:
-                        print('Hello, ' + str(name))
+                        print(Fore.GREEN + 'Hello, ' + Fore.BLUE + str(name))
                         # engine.say('Hello, ' + str(name))
                         # engine.runAndWait()
 
@@ -89,8 +91,9 @@ def main():
         except:
             # If Database directory has no pictures with faces
             if error_time_counter == 0:
-                print('\nThere are no faces in the Database')
+                print(Fore.RED + '\nThere are no faces in the Database')
             # Variable error_time_counter prevents spam
+            #dar fix ( spam infinito)
             error_time_counter += 1
             if error_time_counter == 10:
                 error_time_counter = 0
@@ -110,17 +113,17 @@ def main():
             print('\nFace Recognition Database')
             print('--------------------------------------------')
             for name in face_names:
-                print(str(name))
+                print(Fore.BLUE + str(name))
             print('--------------------------------------------')
             print(not args['use_database'])
 
         # The 'h' button is used to show the instructions
         if key == ord('h'):
             print('\nProgram Commands')
-            print('\nPress "q" to quit the program')
-            print('Press "d" to show the Database')
-            print('Press "h" to show these instructions')
-            print('Press "p" to take a picture and add it to Database')
+            print(Fore.BLACK + Back.RED + '\nPress "q" to quit the program')
+            print(Fore.BLACK + Back.BLUE + 'Press "d" to show the Database')
+            print(Fore.BLACK + Back.YELLOW + 'Press "h" to show these instructions')
+            print(Fore.BLACK + Back.GREEN + 'Press "p" to take a picture and add it to Database')
 
         # The 'p' button is used to take a picture and add it to the Database
         if key == ord('p') or picture_countdown != 3:
