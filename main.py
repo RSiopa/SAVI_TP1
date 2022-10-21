@@ -2,7 +2,7 @@
 import copy
 import cv2
 import argparse
-from simple_facerec import SimpleFacerec, Detection
+from simple_facerec import SimpleFacerec, Detection, Tracker
 import shutil
 import os
 import pyttsx3
@@ -56,17 +56,22 @@ def main():
     last_face_names = None
     picture_countdown = 3
     detection_counter = 0
-
+    tracker_counter = 0
+    trackers = []
+    iou_threshold = 0.8
     # -----------------------------------------------------
     # Execution
     # -----------------------------------------------------
 
     # Video Cycle
-    while True:
+    frame_counter = 0
+    while (video.isOpened()):
 
         # Capture the video frame by frame
         ret, frame = video.read()
         stamp = float(video.get(cv2.CAP_PROP_POS_MSEC))/1000
+        if ret == False:
+            break
 
         # Copy original image
         image_gui = copy.deepcopy(frame)
@@ -79,7 +84,9 @@ def main():
             for face_loc, name in zip(face_locations, face_names):
                 y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
 
-                
+                # ------------------------------------------
+                # Create Detections per face detected
+                # ------------------------------------------
                 detection = Detection(x1, y1, x2, y2, image_gray, id=detection_counter, name=name, stamp=stamp)
                 detection_counter += 1
                 detection.draw(image_gui)
@@ -87,6 +94,8 @@ def main():
                 # Draw rectangle and name
                 #cv2.putText(image_gui, name, (x1, y1 - 5), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
                 #cv2.rectangle(image_gui, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+
 
                 # Prevent the spam a bit
                 if not face_names == last_face_names:
@@ -113,12 +122,53 @@ def main():
             error_time_counter += 1
             if error_time_counter == 10:
                 error_time_counter = 0
+        # ------------------------------------------
+        # For each detection, see if there is a tracker to which it should be associated
+        # ------------------------------------------
+        for detection in detections: # cycle all detections
+            for tracker in trackers: # cycle all trackers
+                tracker_bbox = tracker.detections[-1]
+                iou = detection.computeIOU(tracker_bbox)
+                # print('IOU( T' + str(tracker.id) + ' D' + str(detection.id) + ' ) = ' + str(iou))
+                if iou > iou_threshold: # associate detection with tracker 
+                    tracker.addDetection(detection, image_gray)
+        # ------------------------------------------
+        # Track using template matching
+        # ------------------------------------------
+        for tracker in trackers: # cycle all trackers
+            last_detection_id = tracker.detections[-1].id
+            #print(last_detection_id)
+            detection_ids = [d.id for d in detections]
+            if not last_detection_id in detection_ids:
+                print('Tracker ' + str(tracker.id) + ' Doing some tracking')
+                tracker.track(image_gray)
+        # ------------------------------------------
+        # Deactivate Tracker if no detection for more than T
+        # ------------------------------------------
+        for tracker in trackers: # cycle all trackers
+            tracker.updateTime(stamp)
+
+        # ------------------------------------------
+        # Create Tracker for each detection
+        # ------------------------------------------
+        for detection in detections:
+            if not detection.assigned_to_tracker:
+                tracker = Tracker(detection, id=tracker_counter, image=image_gray)
+                tracker_counter += 1
+                trackers.append(tracker)
+        # ------------------------------------------
+        # Draw stuff
+        # ------------------------------------------
+        for tracker in trackers:
+            tracker.draw(image_gui)
 
         # Display the resulting image
-        cv2.imshow('image', image_gui)
+        cv2.imshow('Face Recognition Software', image_gui)
+        frame_counter += 1
 
         # Wait for the video
         key = cv2.waitKey(1)
+
 
         # The 'q' button is set as the quitting button
         if key == ord('q'):
