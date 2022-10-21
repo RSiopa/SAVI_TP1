@@ -2,7 +2,7 @@
 import copy
 import cv2
 import argparse
-from simple_facerec import SimpleFacerec
+from simple_facerec import SimpleFacerec, Detection
 import shutil
 import os
 import pyttsx3
@@ -37,6 +37,8 @@ def main():
 
     # Start video
     video = cv2.VideoCapture(0)
+    if (video.isOpened()== False):
+        print("Error opening video stream or file")
 
     # Initiate the text to speech
     engine = pyttsx3.init()
@@ -53,6 +55,7 @@ def main():
     error_time_counter = 0
     last_face_names = None
     picture_countdown = 3
+    detection_counter = 0
 
     # -----------------------------------------------------
     # Execution
@@ -63,31 +66,40 @@ def main():
 
         # Capture the video frame by frame
         ret, frame = video.read()
+        stamp = float(video.get(cv2.CAP_PROP_POS_MSEC))/1000
 
         # Copy original image
         image_gui = copy.deepcopy(frame)
-
+        image_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        
         try:
             # Detect Faces
+            detections = []
             face_locations, face_names = sfr.detect_known_faces(image_gui)
             for face_loc, name in zip(face_locations, face_names):
                 y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
 
+                
+                detection = Detection(x1, y1, x2, y2, image_gray, id=detection_counter, name=name, stamp=stamp)
+                detection_counter += 1
+                detection.draw(image_gui)
+                detections.append(detection)
                 # Draw rectangle and name
-                cv2.putText(image_gui, name, (x1, y1 - 5), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
-                cv2.rectangle(image_gui, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                #cv2.putText(image_gui, name, (x1, y1 - 5), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
+                #cv2.rectangle(image_gui, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
                 # Prevent the spam a bit
                 if not face_names == last_face_names:
                     if name == 'Unknown':
                         # Ask to add face to Database
                         print(Fore.GREEN + 'Hello, I do not know you.\nCould you take a picture with "p" and introduce yourself?')
-                        print(Style.RESET_ALL)                    
+                        print(Style.RESET_ALL)
+                  
                     else:
                         print(Fore.GREEN + 'Hello, ' + Fore.BLUE + str(name))
                         print(Style.RESET_ALL)
-                        engine.say('Hello, ' + str(name))
-                        engine.runAndWait()
+                        #engine.say('Hello, ' + str(name))
+                        #engine.runAndWait()
 
             last_face_names = face_names
 
