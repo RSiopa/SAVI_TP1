@@ -39,14 +39,14 @@ def main():
     video = cv2.VideoCapture(0)
 
     # Initiate the text to speech
-    engine = pyttsx3.init('dummy')
+    engine = pyttsx3.init()
 
     # Show commands
     print('\nProgram Commands')
     print(Fore.BLACK + Back.RED + '\nPress "q" to quit the program')
     print(Fore.BLACK + Back.BLUE + 'Press "d" to show the Database')
     print(Fore.BLACK + Back.YELLOW + 'Press "h" to show these instructions')
-    print(Fore.BLACK + Back.GREEN + 'Press "p" to take a picture and add it to Database')
+    print(Fore.BLACK + Back.GREEN + 'Press "p" to take a picture and add it to Database')    
     print(Style.RESET_ALL)
 
     # Initialize some variables to be used in the program
