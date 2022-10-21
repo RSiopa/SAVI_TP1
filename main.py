@@ -39,7 +39,7 @@ def main():
     video = cv2.VideoCapture(0)
 
     # Initiate the text to speech
-    # engine = pyttsx3.init()
+    engine = pyttsx3.init('dummy')
 
     # Show commands
     print('\nProgram Commands')
@@ -47,6 +47,7 @@ def main():
     print(Fore.BLACK + Back.BLUE + 'Press "d" to show the Database')
     print(Fore.BLACK + Back.YELLOW + 'Press "h" to show these instructions')
     print(Fore.BLACK + Back.GREEN + 'Press "p" to take a picture and add it to Database')
+    print(Style.RESET_ALL)
 
     # Initialize some variables to be used in the program
     error_time_counter = 0
@@ -81,10 +82,12 @@ def main():
                     if name == 'Unknown':
                         # Ask to add face to Database
                         print(Fore.GREEN + 'Hello, I do not know you.\nCould you take a picture with "p" and introduce yourself?')
+                        print(Style.RESET_ALL)                    
                     else:
                         print(Fore.GREEN + 'Hello, ' + Fore.BLUE + str(name))
-                        # engine.say('Hello, ' + str(name))
-                        # engine.runAndWait()
+                        print(Style.RESET_ALL)
+                        engine.say('Hello, ' + str(name))
+                        engine.runAndWait()
 
             last_face_names = face_names
 
@@ -92,6 +95,7 @@ def main():
             # If Database directory has no pictures with faces
             if error_time_counter == 0:
                 print(Fore.RED + '\nThere are no faces in the Database')
+                print(Style.RESET_ALL)
             # Variable error_time_counter prevents spam
             #dar fix ( spam infinito)
             error_time_counter += 1
@@ -114,6 +118,7 @@ def main():
             print('--------------------------------------------')
             for name in face_names:
                 print(Fore.BLUE + str(name))
+                print(Style.RESET_ALL)
             print('--------------------------------------------')
             print(not args['use_database'])
 
@@ -124,6 +129,7 @@ def main():
             print(Fore.BLACK + Back.BLUE + 'Press "d" to show the Database')
             print(Fore.BLACK + Back.YELLOW + 'Press "h" to show these instructions')
             print(Fore.BLACK + Back.GREEN + 'Press "p" to take a picture and add it to Database')
+            print(Style.RESET_ALL)
 
         # The 'p' button is used to take a picture and add it to the Database
         if key == ord('p') or picture_countdown != 3:
