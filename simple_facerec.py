@@ -7,6 +7,7 @@ import glob
 import numpy as np
 import csv
 
+
 class BoundingBox:
     
     def __init__(self, x1, y1, x2, y2):
@@ -19,7 +20,6 @@ class BoundingBox:
         self.h = self.y2 - self.y1
 
         self.area = self.w * self.h
-
 
     def computeIOU(self, bbox2):
     
@@ -39,6 +39,7 @@ class BoundingBox:
     def extractSmallImage(self, image_full):
         return image_full[self.y1:self.y2, self.x1:self.x2]
 
+
 class Detection(BoundingBox):
 
     def __init__(self, x1, y1, x2, y2, image_full, id, name, stamp):
@@ -55,6 +56,7 @@ class Detection(BoundingBox):
         image = cv2.putText(image_gui, 'D' + str(self.id) + ' ' + self.name, (self.x1, self.y1-5), cv2.FONT_HERSHEY_SIMPLEX, 
                         1, color, 2, cv2.LINE_AA)
 
+
 class Tracker():
 
     def __init__(self, detection, id, image):
@@ -67,9 +69,6 @@ class Tracker():
         self.time_since_last_detection = None
 
         self.addDetection(detection, image)
-
-
-
 
     def getLastDetectionStamp(self):
         return self.detections[-1].stamp
@@ -106,7 +105,6 @@ class Tracker():
         cv2.putText(image_gui, str(self.time_since_last_detection) + ' s', 
                             (bbox.x2-40, bbox.y1-25), cv2.FONT_HERSHEY_SIMPLEX, 
                         1, color, 2, cv2.LINE_AA)
-
 
     def addDetection(self, detection, image):
 
@@ -210,5 +208,3 @@ class SimpleFacerec:
         face_locations = np.array(face_locations)
         face_locations = face_locations / self.frame_resizing
         return face_locations.astype(int), face_names
-
-
