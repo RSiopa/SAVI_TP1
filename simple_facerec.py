@@ -47,7 +47,7 @@ class Detection(BoundingBox):
         self.id = id
         self.name = name
         self.stamp = stamp
-        self.image =self.extractSmallImage(image_full)
+        self.image = self.extractSmallImage(image_full)
         self.assigned_to_tracker = False
 
     def draw(self, image_gui, color=(255, 0, 0)):
@@ -76,14 +76,14 @@ class Tracker:
     def updateTime(self, stamp):
         self.time_since_last_detection = round(stamp-self.getLastDetectionStamp(), 1)
 
-        if self.time_since_last_detection > 2: # deactivate tracker        
+        if self.time_since_last_detection > 2:  # deactivate tracker
             self.active = False
 
     def drawLastDetection(self, image_gui, color=(255, 0, 255)):
         last_detection = self.detections[-1] # get the last detection
 
-        cv2.rectangle(image_gui,(last_detection.x1,last_detection.y1),
-                      (last_detection.x2, last_detection.y2),color,3)
+        cv2.rectangle(image_gui, (last_detection.x1, last_detection.y1),
+                      (last_detection.x2, last_detection.y2), color, 3)
 
         image = cv2.putText(image_gui, 'T' + str(self.id), 
                             (last_detection.x2-40, last_detection.y1-5), cv2.FONT_HERSHEY_SIMPLEX, 
@@ -108,7 +108,7 @@ class Tracker:
 
     def addDetection(self, detection, image):
 
-        self.tracker.init(image, (detection.x1, detection.y1, detection.x2, detection.y2))
+        self.tracker.init(image, (detection.x1, detection.y1, detection.w, detection.h))
 
         self.detections.append(detection)
         detection.assigned_to_tracker = True
