@@ -22,8 +22,8 @@ class BoundingBox:
         self.area = self.w * self.h
 
     def computeIOU(self, bbox2):
-    
-        x1_intr = min(self.x1, bbox2.x1)             
+
+        x1_intr = min(self.x1, bbox2.x1)
         y1_intr = min(self.y1, bbox2.y1)             
         x2_intr = max(self.x2, bbox2.x2)
         y2_intr = max(self.y2, bbox2.y2)
@@ -50,14 +50,14 @@ class Detection(BoundingBox):
         self.image =self.extractSmallImage(image_full)
         self.assigned_to_tracker = False
 
-    def draw(self, image_gui, color=(255,0,0)):
-        cv2.rectangle(image_gui,(self.x1,self.y1),(self.x2, self.y2),color,3)
+    def draw(self, image_gui, color=(255, 0, 0)):
+        cv2.rectangle(image_gui, (self.x1, self.y1), (self.x2, self.y2), color, 3)
 
         image = cv2.putText(image_gui, 'D' + str(self.id) + ' ' + self.name, (self.x1, self.y1-5), cv2.FONT_HERSHEY_SIMPLEX, 
                         1, color, 2, cv2.LINE_AA)
 
 
-class Tracker():
+class Tracker:
 
     def __init__(self, detection, id, image):
         self.id = id
@@ -74,12 +74,12 @@ class Tracker():
         return self.detections[-1].stamp
 
     def updateTime(self, stamp):
-        self.time_since_last_detection = round(stamp-self.getLastDetectionStamp(),1)
+        self.time_since_last_detection = round(stamp-self.getLastDetectionStamp(), 1)
 
         if self.time_since_last_detection > 2: # deactivate tracker        
             self.active = False
 
-    def drawLastDetection(self, image_gui, color=(255,0,255)):
+    def drawLastDetection(self, image_gui, color=(255, 0, 255)):
         last_detection = self.detections[-1] # get the last detection
 
         cv2.rectangle(image_gui,(last_detection.x1,last_detection.y1),
@@ -89,14 +89,14 @@ class Tracker():
                             (last_detection.x2-40, last_detection.y1-5), cv2.FONT_HERSHEY_SIMPLEX, 
                         1, color, 2, cv2.LINE_AA)
 
-    def draw(self, image_gui, color=(255,0,255)):
+    def draw(self, image_gui, color=(255, 0, 255)):
 
         if not self.active:
-            color = (100,100,100)
+            color = (100, 100, 100)
 
-        bbox = self.bboxes[-1] # get last bbox
+        bbox = self.bboxes[-1]  # get last bbox
 
-        cv2.rectangle(image_gui,(bbox.x1,bbox.y1),(bbox.x2, bbox.y2),color,3)
+        cv2.rectangle(image_gui, (bbox.x1, bbox.y1), (bbox.x2, bbox.y2), color, 3)
 
         cv2.putText(image_gui, 'T' + str(self.id), 
                             (bbox.x2-40, bbox.y1-5), cv2.FONT_HERSHEY_SIMPLEX, 
@@ -119,7 +119,7 @@ class Tracker():
     def track(self, image):
 
         ret, bbox = self.tracker.update(image)
-        x1,y1,w,h = bbox
+        x1, y1, w, h = bbox
         x2 = x1 + w
         y2 = y1 + h
         print(bbox)
@@ -131,7 +131,7 @@ class Tracker():
         self.template = bbox.extractSmallImage(image)
         
     def __str__(self):
-        text =  'T' + str(self.id) + ' Detections = ['
+        text = 'T' + str(self.id) + ' Detections = ['
         for detection in self.detections:
             text += str(detection.id) + ', '
 
@@ -183,7 +183,7 @@ class SimpleFacerec:
         # Find all the faces and face encodings in the current frame of video
         # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
         rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
-        face_locations = face_recognition.face_locations(rgb_small_frame,number_of_times_to_upsample=2, model="hog")
+        face_locations = face_recognition.face_locations(rgb_small_frame, number_of_times_to_upsample=2, model="hog")
         face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
 
         face_names = []

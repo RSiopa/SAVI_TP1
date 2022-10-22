@@ -47,11 +47,11 @@ def main():
         engine = pyttsx3.init()
 
     # Show commands
-    print('\nProgram Commands')
-    print(Fore.BLACK + Back.RED + '\nPress "q" to quit the program' + Style.RESET_ALL)
-    print(Fore.BLACK + Back.BLUE + 'Press "d" to show the Database' + Style.RESET_ALL)
-    print(Fore.BLACK + Back.YELLOW + 'Press "h" to show these instructions' + Style.RESET_ALL)
-    print(Fore.BLACK + Back.GREEN + 'Press "p" to take a picture and add it to Database' + Style.RESET_ALL)
+    print(Style.BRIGHT + '\nProgram Commands' + Style.RESET_ALL)
+    print('\nPress "' + Fore.RED + 'q' + Style.RESET_ALL + '" to ' + Fore.RED + 'quit the program' + Style.RESET_ALL)
+    print('Press "' + Fore.BLUE + 'd' + Style.RESET_ALL + '" to ' + Fore.BLUE + 'show the Database' + Style.RESET_ALL)
+    print('Press "' + Fore.YELLOW + 'h' + Style.RESET_ALL + '" to ' + Fore.YELLOW + 'show these instructions' + Style.RESET_ALL)
+    print('Press "' + Fore.GREEN + 'p' + Style.RESET_ALL + '" to ' + Fore.GREEN + 'take a picture and add it to Database\n' + Style.RESET_ALL)
 
     # Initialize some variables to be used in the program
     # error_time_counter = 0
@@ -104,8 +104,7 @@ def main():
 
                     if name == 'Unknown':
                         # Ask to add face to Database
-                        print(Fore.GREEN + 'Hello, I do not know you.\nCould you take a picture with "p" and introduce yourself?')
-                        print(Style.RESET_ALL)
+                        print(Fore.GREEN + 'Hello, I do not know you.\nCould you take a picture with "p" and introduce yourself?' + Style.RESET_ALL)
                   
                     else:
                         if not args['use_text_to_speech']:
@@ -192,11 +191,11 @@ def main():
 
         # The 'h' button is used to show the instructions
         if key == ord('h'):
-            print('\nProgram Commands')
-            print(Fore.BLACK + Back.RED + '\nPress "q" to quit the program' + Style.RESET_ALL)
-            print(Fore.BLACK + Back.BLUE + 'Press "d" to show the Database' + Style.RESET_ALL)
-            print(Fore.BLACK + Back.YELLOW + 'Press "h" to show these instructions' + Style.RESET_ALL)
-            print(Fore.BLACK + Back.GREEN + 'Press "p" to take a picture and add it to Database' + Style.RESET_ALL)
+            print(Style.BRIGHT + '\nProgram Commands' + Style.RESET_ALL)
+            print('\nPress "' + Fore.RED + 'q' + Style.RESET_ALL + '" to ' + Fore.RED + 'quit the program' + Style.RESET_ALL)
+            print('Press "' + Fore.BLUE + 'd' + Style.RESET_ALL + '" to ' + Fore.BLUE + 'show the Database' + Style.RESET_ALL)
+            print('Press "' + Fore.YELLOW + 'h' + Style.RESET_ALL + '" to ' + Fore.YELLOW + 'show these instructions' + Style.RESET_ALL)
+            print('Press "' + Fore.GREEN + 'p' + Style.RESET_ALL + '" to ' + Fore.GREEN + 'take a picture and add it to Database\n' + Style.RESET_ALL)
 
         # The 'p' button is used to take a picture and add it to the Database
         if key == ord('p') or picture_countdown != 3:
