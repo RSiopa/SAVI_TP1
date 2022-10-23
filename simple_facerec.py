@@ -51,16 +51,18 @@ class Detection(BoundingBox):
         self.assigned_to_tracker = False
 
     def draw(self, image_gui, color=(255, 0, 0)):
-        cv2.rectangle(image_gui, (self.x1, self.y1), (self.x2, self.y2), color, 3)
+        1==1
+        # cv2.rectangle(image_gui, (self.x1, self.y1), (self.x2, self.y2), color, 3)
 
-        image = cv2.putText(image_gui, 'D' + str(self.id) + ' ' + self.name, (self.x1, self.y1-5), cv2.FONT_HERSHEY_SIMPLEX, 
-                        1, color, 2, cv2.LINE_AA)
+        # image = cv2.putText(image_gui, 'D' + str(self.id) + ' ' + self.name, (self.x1, self.y1-5), cv2.FONT_HERSHEY_SIMPLEX,
+        #                 1, color, 2, cv2.LINE_AA)
 
 
 class Tracker:
 
-    def __init__(self, detection, id, image):
+    def __init__(self, detection, id, name, image):
         self.id = id
+        self.name = name
         self.template = None
         self.active = True
         self.bboxes = []
@@ -85,26 +87,29 @@ class Tracker:
         cv2.rectangle(image_gui, (last_detection.x1, last_detection.y1),
                       (last_detection.x2, last_detection.y2), color, 3)
 
-        image = cv2.putText(image_gui, 'T' + str(self.id), 
-                            (last_detection.x2-40, last_detection.y1-5), cv2.FONT_HERSHEY_SIMPLEX, 
+        image = cv2.putText(image_gui, 'T' + str(self.id),
+                            (last_detection.x2-40, last_detection.y1-5), cv2.FONT_HERSHEY_SIMPLEX,
                         1, color, 2, cv2.LINE_AA)
 
     def draw(self, image_gui, color=(255, 0, 255)):
 
-        if not self.active:
-            color = (100, 100, 100)
+        # if self.active:
 
         bbox = self.bboxes[-1]  # get last bbox
 
         cv2.rectangle(image_gui, (bbox.x1, bbox.y1), (bbox.x2, bbox.y2), color, 3)
 
-        cv2.putText(image_gui, 'T' + str(self.id), 
-                            (bbox.x2-40, bbox.y1-5), cv2.FONT_HERSHEY_SIMPLEX, 
-                        1, color, 2, cv2.LINE_AA)
+        # cv2.putText(image_gui, 'T' + str(self.id),
+        #                     (bbox.x2-40, bbox.y1-5), cv2.FONT_HERSHEY_SIMPLEX,
+        #                 1, color, 2, cv2.LINE_AA)
 
-        cv2.putText(image_gui, str(self.time_since_last_detection) + ' s', 
-                            (bbox.x2-40, bbox.y1-25), cv2.FONT_HERSHEY_SIMPLEX, 
-                        1, color, 2, cv2.LINE_AA)
+        # cv2.putText(image_gui, str(self.time_since_last_detection) + ' s',
+        #                     (bbox.x2-40, bbox.y1-25), cv2.FONT_HERSHEY_SIMPLEX,
+        #                 1, color, 2, cv2.LINE_AA)
+
+        cv2.putText(image_gui, self.name, (bbox.x1, bbox.y1-5),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            1, color, 2, cv2.LINE_AA)
 
     def addDetection(self, detection, image):
 
@@ -122,7 +127,7 @@ class Tracker:
         x1, y1, w, h = bbox
         x2 = x1 + w
         y2 = y1 + h
-        print(bbox)
+        # print(bbox)
         bbox = BoundingBox(x1, y1, x2, y2)
 
         self.bboxes.append(bbox)

@@ -9,7 +9,6 @@ import pyttsx3
 from colorama import Fore, Back, Style
 
 
-
 def main():
 
     # -----------------------------------------------------
@@ -62,6 +61,7 @@ def main():
     trackers = []
     iou_threshold = 0.8
     no_face_counter = 0
+    face_name_counter = 0
 
     # -----------------------------------------------------
     # Execution
@@ -108,7 +108,7 @@ def main():
                   
                     else:
                         if not args['use_text_to_speech']:
-                            print(Fore.GREEN + 'Hello, ' + Fore.BLUE + str(name))
+                            print(Fore.GREEN + '\nHello, ' + Fore.BLUE + str(name))
                             print(Style.RESET_ALL)
 
                         if args['use_text_to_speech']:
@@ -144,7 +144,7 @@ def main():
             #print(last_detection_id)
             detection_ids = [d.id for d in detections]
             if not last_detection_id in detection_ids:
-                print('Tracker ' + str(tracker.id) + ' Doing some tracking')
+                # print('Tracker ' + str(tracker.id) + ' Doing some tracking')
                 tracker.track(image_gray)
 
         # ------------------------------------------
@@ -157,10 +157,15 @@ def main():
         # Create Tracker for each detection
         # ------------------------------------------
         for detection in detections:
+            # With more people names bug out, need to know whats happening
             if not detection.assigned_to_tracker:
-                tracker = Tracker(detection, id=tracker_counter, image=image_gray)
+                # print(face_names)
+                tracker = Tracker(detection, id=tracker_counter, name=face_names[face_name_counter], image=image_gray)
                 tracker_counter += 1
+                face_name_counter += 1
                 trackers.append(tracker)
+
+        face_name_counter = 0
 
         # ------------------------------------------
         # Draw stuff
