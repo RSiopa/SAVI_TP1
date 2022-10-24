@@ -93,7 +93,7 @@ def main():
                 # ------------------------------------------
                 detection = Detection(x1, y1, x2, y2, image_gray, id=detection_counter, name=name, stamp=stamp)
                 detection_counter += 1
-                detection.draw(image_gui)
+                # detection.draw(image_gui)
                 detections.append(detection)
                 # Draw rectangle and name
                 #cv2.putText(image_gui, name, (x1, y1 - 5), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
@@ -134,10 +134,10 @@ def main():
                 iou = detection.computeIOU(tracker_bbox)
                 # print('IOU( T' + str(tracker.id) + ' D' + str(detection.id) + ' ) = ' + str(iou))
                 if iou > iou_threshold:  # associate detection with tracker
-                    tracker.addDetection(detection, image_gray)
+                    tracker.addDetection(detection, image_gray, detection.name)
 
         # ------------------------------------------
-        # Track using template matching
+        # Tracking Using TrackerCSRT
         # ------------------------------------------
         for tracker in trackers:  # cycle all trackers
             last_detection_id = tracker.detections[-1].id
@@ -148,7 +148,7 @@ def main():
                 tracker.track(image_gray)
 
         # ------------------------------------------
-        # Deactivate Tracker if no detection for more than T
+        # Update trackers
         # ------------------------------------------
         for tracker in trackers:  # cycle all trackers
             tracker.updateTime(stamp)

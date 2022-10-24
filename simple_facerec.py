@@ -52,10 +52,10 @@ class Detection(BoundingBox):
 
     def draw(self, image_gui, color=(255, 0, 0)):
         1==1
-        # cv2.rectangle(image_gui, (self.x1, self.y1), (self.x2, self.y2), color, 3)
+        cv2.rectangle(image_gui, (self.x1, self.y1), (self.x2, self.y2), color, 3)
 
-        # image = cv2.putText(image_gui, 'D' + str(self.id) + ' ' + self.name, (self.x1, self.y1-5), cv2.FONT_HERSHEY_SIMPLEX,
-        #                 1, color, 2, cv2.LINE_AA)
+        image = cv2.putText(image_gui, 'D' + str(self.id) + ' ' + self.name, (self.x1, self.y1-5), cv2.FONT_HERSHEY_SIMPLEX,
+                        1, color, 2, cv2.LINE_AA)
 
 
 class Tracker:
@@ -70,7 +70,7 @@ class Tracker:
         self.tracker = cv2.TrackerCSRT_create()
         self.time_since_last_detection = None
 
-        self.addDetection(detection, image)
+        self.addDetection(detection, image, name)
 
     def getLastDetectionStamp(self):
         return self.detections[-1].stamp
@@ -111,10 +111,10 @@ class Tracker:
                             cv2.FONT_HERSHEY_SIMPLEX,
                             1, color, 2, cv2.LINE_AA)
 
-    def addDetection(self, detection, image):
+    def addDetection(self, detection, image, name):
 
         self.tracker.init(image, (detection.x1, detection.y1, detection.w, detection.h))
-
+        self.name = name
         self.detections.append(detection)
         detection.assigned_to_tracker = True
         self.template = detection.image
