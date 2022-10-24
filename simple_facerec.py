@@ -110,23 +110,23 @@ class Tracker:
 
     def draw(self, image_gui, color=(255, 0, 255)):
 
-        # if self.active:
+        if self.active:
 
-        bbox = self.bboxes[-1]  # get last bbox
+            bbox = self.bboxes[-1]  # get last bbox
 
-        cv2.rectangle(image_gui, (bbox.x1, bbox.y1), (bbox.x2, bbox.y2), color, 3)
+            cv2.rectangle(image_gui, (bbox.x1, bbox.y1), (bbox.x2, bbox.y2), color, 3)
 
-        # cv2.putText(image_gui, 'T' + str(self.id),
-        #                     (bbox.x2-40, bbox.y1-5), cv2.FONT_HERSHEY_SIMPLEX,
-        #                 1, color, 2, cv2.LINE_AA)
+            # cv2.putText(image_gui, 'T' + str(self.id),
+            #                     (bbox.x2-40, bbox.y1-5), cv2.FONT_HERSHEY_SIMPLEX,
+            #                 1, color, 2, cv2.LINE_AA)
 
-        # cv2.putText(image_gui, str(self.time_since_last_detection) + ' s',
-        #                     (bbox.x2-40, bbox.y1-25), cv2.FONT_HERSHEY_SIMPLEX,
-        #                 1, color, 2, cv2.LINE_AA)
+            # cv2.putText(image_gui, str(self.time_since_last_detection) + ' s',
+            #                     (bbox.x2-40, bbox.y1-25), cv2.FONT_HERSHEY_SIMPLEX,
+            #                 1, color, 2, cv2.LINE_AA)
 
-        cv2.putText(image_gui, self.name, (bbox.x1, bbox.y1-5),
-                            cv2.FONT_HERSHEY_SIMPLEX,
-                            1, color, 2, cv2.LINE_AA)
+            cv2.putText(image_gui, self.name, (bbox.x1, bbox.y1-5),
+                                cv2.FONT_HERSHEY_SIMPLEX,
+                                1, color, 2, cv2.LINE_AA)
 
     def addDetection(self, detection, image, name):
 
@@ -170,44 +170,54 @@ class SimpleFacerec:
         self.frame_resizing = 0.1
 
     def save_encondings(self, encodings_path, names, encodings):
+        
+        try:
+            with open(encodings_path, 'rb') as f:
+                all_face_encodings = pickle.load(f) 
+            f.close()
+        except:
+            all_face_encodings = {}
 
-        all_face_encodings = {}
-        # img1 = face_recognition.load_image_file("obama.jpg")
-        # all_face_encodings["obama"] = face_recognition.face_encodings(img1)[0]
         if len(encodings) == 1:
             for encoding in encodings:
                 all_face_encodings[names] = ' '.join(map(str, encoding))
-                print(all_face_encodings)
+                # print(all_face_encodings)
         else:
             for encoding in encodings:
                 all_face_encodings[names[encodings.index(encoding)]] = encoding
-        with open(encodings_path, 'wb') as f:
-            pickle.dump(all_face_encodings, f)
+            
+        
+        with open(encodings_path, 'wb') as u:
+            pickle.dump(all_face_encodings, u)
+        u.close()
 
     def load_encodings(self, encodings_path):
         
         try:
+            self.known_face_encodings = []
         # Load face encodings
             with open(encodings_path, 'rb') as f:
                 all_face_encodings = pickle.load(f)
-
+            # print(all_face_encodings)
             # Grab the list of names and the list of encodings
             face_names = list(all_face_encodings.keys())
-
-            face_encodings = np.array(list(all_face_encodings.values()))
-            face_encodings = face_encodings[0].split(' ')
-            face_encodings = list(map(float,face_encodings))
-            print(face_encodings)
-            self.known_face_encodings.append(face_encodings)
+            
+            face_encodings = list(all_face_encodings.values())
+            for encoding in face_encodings:
+                face_encoding = face_encodings[face_encodings.index(encoding)].split(' ')
+                face_encoding = list(map(float,face_encoding))
+                self.known_face_encodings.append(face_encoding)
+            # print(self.known_face_encodings)
             self.known_face_names = face_names
             
             print(Fore.GREEN + "Encodings loaded!" + Style.RESET_ALL)
-            print(self.known_face_encodings)
+            # print(self.known_face_encodings)
         except:
             print(Fore.RED + 'Nothing yet on the data base!' + Style.RESET_ALL)
 
     def simpleFace_detector(selfe, frame):
         encodings = face_recognition.face_encodings(frame,model = "small")
+        # print(encodings)
         return encodings
 
     def detect_known_faces(self, frame):
@@ -242,4 +252,5 @@ class SimpleFacerec:
         # Convert to numpy array to adjust coordinates with frame resizing quickly
         face_locations = np.array(face_locations)
         face_locations = face_locations / self.frame_resizing
-        return face_locations.astype(int), face_names, face_encodings
+        
+        return face_locations.astype(int), face_names

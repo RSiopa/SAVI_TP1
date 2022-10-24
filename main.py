@@ -8,6 +8,7 @@ import shutil
 import os
 import pyttsx3
 from colorama import Fore, Back, Style
+import time
 
 
 def main():
@@ -33,6 +34,7 @@ def main():
     # If user wants to use the Database
     if args['use_database']:
         sfr.load_encodings(database_path)
+        print(sfr.known_face_names)
     else:
         # Else use an empty folder to not find any images
         sfr.load_encodings(no_database_path)
@@ -85,7 +87,7 @@ def main():
         try:
             # Detect Faces
             detections = []
-            face_locations, face_names, face_encodings = sfr.detect_known_faces(image_gui)
+            face_locations, face_names = sfr.detect_known_faces(image_gui)
             for face_loc, name in zip(face_locations, face_names):
                 y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
 
@@ -136,7 +138,7 @@ def main():
                 # print('IOU( T' + str(tracker.id) + ' D' + str(detection.id) + ' ) = ' + str(iou))
                 if iou > iou_threshold:  # associate detection with tracker
                     tracker.addDetection(detection, image_gray, detection.name)
-
+                    tracker.active = True
         # ------------------------------------------
         # Tracking Using TrackerCSRT
         # ------------------------------------------
@@ -213,9 +215,7 @@ def main():
                     print('No faces detected, try again!')
                     picture_countdown = 3
                 elif len(sfr.simpleFace_detector(image_gui)) == 1:
-                    cv2.imshow('New Picture!', image_gui)
-                    print('Snap!')
-                    
+                    image_gui = copy.deepcopy(image_gui)
                     new_name = input("What is your name? ")
                     encoding = sfr.simpleFace_detector(image_gui)
                     # Adds encoding and name to data base
@@ -229,46 +229,31 @@ def main():
 
                     # Return picture_countdown to original value
                     picture_countdown = 3
-                    cv2.destroyWindow('New Picture!')
                 else:
+
                     # Detect Faces
                     face_locations, face_names = sfr.detect_known_faces(image_gui)
-                    try:
-                        # Detect Faces
-                        Picture_detections = []
-                        pictureDetection_counter = 0
-                        face_locations, face_names, face_encodings = sfr.detect_known_faces(image_gui)
-                        for face_loc, name in zip(face_locations, face_names):
-                            y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
+                    
+                    # Detect Faces0
+                    face_locations, face_names = sfr.detect_known_faces(image_gui)
+                    for face_loc, name in zip(face_locations, face_names):
+                        y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
 
-                            # ------------------------------------------
-                            # Create Detections per face detected
-                            # ------------------------------------------
-                            detection = pictureDetection(x1, y1, x2, y2, image_gray, id=detection_counter, name=name, stamp=stamp)
-                            pictureDetection_counter += 1
-                            # detection.draw(image_gui)
-                            Picture_detections.append(detection)
+                        if name == 'Unknown':
+                            image_gui = copy.deepcopy(frame)
+                            # cv2.destroyAllWindows()
+                            
+                            # Draw rectangle and name
+                            cv2.putText(image_gui, 'Who is this?', (x1, y1 - 5), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
+                            cv2.rectangle(image_gui, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                           
+                            cv2.imshow('Picture time', image_gui)
+                            cv2.waitKey(25)
 
-                            if name == 'Unknown':
-                                # Ask to add face to Database
-                                print(Fore.GREEN + 'Hello, I do not know you.\n Please, tell me your name,' + Style.RESET_ALL)
-                                # Draw rectangle and name
-                                cv2.putText(image_gui, 'Who is this?', (x1, y1 - 5), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
-                                cv2.rectangle(image_gui, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                            else:
-                                if not args['use_text_to_speech']:
-                                    print(Fore.GREEN + '\nHello, ' + Fore.BLUE + str(name))
-                                    print(Style.RESET_ALL)
-
-                                if args['use_text_to_speech']:
-                                    engine.say('Hello, ' + str(name))
-                                    engine.runAndWait()
-
-                    except:
-                        # If Database directory has no pictures with faces
-                        if no_face_counter == 0:
-                            print(Fore.RED + '\nThere are no faces in the Database' + Style.RESET_ALL)
-                            no_face_counter = 1
+                            # Ask to add face to Database
+                            new_name = input(Fore.GREEN + 'What is the name of the person inside the box? ' + Style.RESET_ALL)
+                    picture_countdown = 3         
+ 
 
     # -----------------------------------------------------
     # Termination
