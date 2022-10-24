@@ -6,7 +6,8 @@ import os
 import glob
 import numpy as np
 import csv
-
+import pickle
+from colorama import Fore, Back, Style
 
 class BoundingBox:
     
@@ -57,6 +58,22 @@ class Detection(BoundingBox):
         image = cv2.putText(image_gui, 'D' + str(self.id) + ' ' + self.name, (self.x1, self.y1-5), cv2.FONT_HERSHEY_SIMPLEX,
                         1, color, 2, cv2.LINE_AA)
 
+class pictureDetection(BoundingBox):
+
+    def __init__(self, x1, y1, x2, y2, image_full, id, name, stamp):
+        super().__init__(x1, y1, x2, y2) # call the super class constructor        
+        self.id = id
+        self.name = name
+        self.stamp = stamp
+        self.image = self.extractSmallImage(image_full)
+        self.assigned_to_tracker = False
+
+    def draw(self, image_gui, color=(255, 0, 0)):
+        1==1
+        cv2.rectangle(image_gui, (self.x1, self.y1), (self.x2, self.y2), color, 3)
+
+        image = cv2.putText(image_gui, 'D' + str(self.id) + ' ' + self.name, (self.x1, self.y1-5), cv2.FONT_HERSHEY_SIMPLEX,
+                        1, color, 2, cv2.LINE_AA)
 
 class Tracker:
 
@@ -152,36 +169,46 @@ class SimpleFacerec:
         # Resize frame for a faster speed
         self.frame_resizing = 0.1
 
-    def load_encoding_images(self, images_path):
-        """
-        Load encoding images from path
-        :param images_path:
-        :return:
-        """
-        # Load Images
-        images_path = glob.glob(os.path.join(images_path, "*.*"))
+    def save_encondings(self, encodings_path, names, encodings):
 
-        print("{} encoding images found.".format(len(images_path)))
+        all_face_encodings = {}
+        # img1 = face_recognition.load_image_file("obama.jpg")
+        # all_face_encodings["obama"] = face_recognition.face_encodings(img1)[0]
+        if len(encodings) == 1:
+            for encoding in encodings:
+                all_face_encodings[names] = ' '.join(map(str, encoding))
+                print(all_face_encodings)
+        else:
+            for encoding in encodings:
+                all_face_encodings[names[encodings.index(encoding)]] = encoding
+        with open(encodings_path, 'wb') as f:
+            pickle.dump(all_face_encodings, f)
 
-        # Store image encoding and names
-        for img_path in images_path:
-            img = cv2.imread(img_path)
-            rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-            # Get the filename only from the initial file path.
-            basename = os.path.basename(img_path)
-            (filename, ext) = os.path.splitext(basename)
+    def load_encodings(self, encodings_path):
         
-            # Get encoding
-            if len(face_recognition.face_encodings(rgb_img)) == 0:
-                continue
-            
-            img_encoding = face_recognition.face_encodings(rgb_img)[0]
+        try:
+        # Load face encodings
+            with open(encodings_path, 'rb') as f:
+                all_face_encodings = pickle.load(f)
 
-            # Store file name and file encoding
-            self.known_face_encodings.append(img_encoding)
-            self.known_face_names.append(filename)
-        print("Encoding images loaded")
+            # Grab the list of names and the list of encodings
+            face_names = list(all_face_encodings.keys())
+
+            face_encodings = np.array(list(all_face_encodings.values()))
+            face_encodings = face_encodings[0].split(' ')
+            face_encodings = list(map(float,face_encodings))
+            print(face_encodings)
+            self.known_face_encodings.append(face_encodings)
+            self.known_face_names = face_names
+            
+            print(Fore.GREEN + "Encodings loaded!" + Style.RESET_ALL)
+            print(self.known_face_encodings)
+        except:
+            print(Fore.RED + 'Nothing yet on the data base!' + Style.RESET_ALL)
+
+    def simpleFace_detector(selfe, frame):
+        encodings = face_recognition.face_encodings(frame,model = "small")
+        return encodings
 
     def detect_known_faces(self, frame):
         small_frame = cv2.resize(frame, (0, 0), fx=self.frame_resizing, fy=self.frame_resizing)
@@ -189,27 +216,30 @@ class SimpleFacerec:
         # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
         rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
         face_locations = face_recognition.face_locations(rgb_small_frame, number_of_times_to_upsample=2, model="hog")
-        face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
-
+        face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations, model = "small")
         face_names = []
         for face_encoding in face_encodings:
-            # See if the face is a match for the known face(s)
-            matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding, 0.6)
             name = "Unknown"
+            
+            if not self.known_face_encodings == []:
+                # See if the face is a match for the known face(s)
+                matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding, 0.6)
 
-            # # If a match was found in known_face_encodings, just use the first one.
-            # if True in matches:
-            #     first_match_index = matches.index(True)
-            #     name = known_face_names[first_match_index]
+                # # If a match was found in known_face_encodings, just use the first one.
+                # if True in matches:
+                #     first_match_index = matches.index(True)
+                #     name = known_face_names[first_match_index]
 
-            # Or instead, use the known face with the smallest distance to the new face
-            face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
-            best_match_index = np.argmin(face_distances)
-            if matches[best_match_index]:
-                name = self.known_face_names[best_match_index]
-            face_names.append(name)
+                # Or instead, use the known face with the smallest distance to the new face
+                face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
+                best_match_index = np.argmin(face_distances)
+                if matches[best_match_index]:
+                    name = self.known_face_names[best_match_index]
+                face_names.append(name)
+            else:    
+                face_names.append(name)
 
         # Convert to numpy array to adjust coordinates with frame resizing quickly
         face_locations = np.array(face_locations)
         face_locations = face_locations / self.frame_resizing
-        return face_locations.astype(int), face_names
+        return face_locations.astype(int), face_names, face_encodings
