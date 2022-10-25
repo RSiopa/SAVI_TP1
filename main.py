@@ -207,7 +207,7 @@ def main():
                 print(Fore.BLUE + str(name))
                 print(Style.RESET_ALL)
             print('--------------------------------------------')
-            print(not args['use_database'])
+            # print(not args['use_database'])
 
         # The 'h' button is used to show the instructions
         if key == ord('h'):
@@ -226,31 +226,8 @@ def main():
                 if len(sfr.simpleFace_detector(image_gui)) == 0:
                     print('No faces detected, try again!')
                     picture_countdown = 3
-                # elif len(sfr.simpleFace_detector(image_gui)) == 1:
-                #     encoding = sfr.simpleFace_detector(frame)
-                #     # print(encoding)
-                #     image_gui = copy.deepcopy(frame)
-                #     # Draw rectangle and name
-                #     cv2.putText(image_gui, 'Who is this?', (x1, y1 - 5), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
-                #     cv2.rectangle(image_gui, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    
-                #     cv2.imshow('Picture for Database', image_gui)
-                #     cv2.waitKey(30)
-                #     new_name = input("What is your name? ")
-                #     # Adds encoding and name to data base
-                #     if args['use_database']:
-                #         sfr.save_encondings(database_path, new_name, encoding)
-                #         sfr.load_encodings(database_path)
-                #     else:
-                #         # Not using Database, image will be added to the empty Database
-                #         sfr.save_encondings(no_database_path, new_name, encoding)
-                #         sfr.load_encodings(no_database_path)
-
-                #     # Return picture_countdown to original value
-                #     picture_countdown = 3
-                #     cv2.destroyWindow('Picture for Database')
                 else:
-
+                    print(Fore.YELLOW + "SNAP!" + Style.RESET_ALL)
                     # Detect Faces
                     face_locations, face_names, face_encodings = sfr.detect_known_faces(image_gui)
                     
@@ -267,7 +244,7 @@ def main():
                             cv2.rectangle(image_gui, (x1, y1), (x2, y2), (0, 255, 0), 2)
                            
                             cv2.imshow('Picture for Database', image_gui)
-                            cv2.waitKey(30)
+                            cv2.waitKey(35)
                         
                             # Ask to add face to Database
                             new_name = input(Fore.GREEN + 'What is the name of the person inside the box? ' + Style.RESET_ALL)
