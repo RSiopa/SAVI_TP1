@@ -26,8 +26,16 @@ def main():
     args = vars(parser.parse_args())
 
     # Paths of Databases
-    database_path = 'Face_Encodings/faces_database.data'
-    no_database_path = 'No_Database/faces_database.data'
+    database_path = 'faces_database.data'
+    no_database_path = 'temporary_database.data'
+
+    try:
+        f = open(database_path, 'rb')
+        f.close()
+    except:
+        f = open(database_path, 'xb')
+        f.close
+
 
     sfr = SimpleFacerec()
 
@@ -36,8 +44,12 @@ def main():
         sfr.load_encodings(database_path)
         print(sfr.known_face_names)
     else:
-        # Else use an empty folder to not find any images
-        sfr.load_encodings(no_database_path)
+        try:
+            f = open(no_database_path, 'x')
+            f.close        
+            sfr.load_encodings(no_database_path)
+        except:
+            sfr.load_encodings(no_database_path)
 
     # Start video
     video = cv2.VideoCapture(0)
@@ -87,7 +99,7 @@ def main():
         try:
             # Detect Faces
             detections = []
-            face_locations, face_names = sfr.detect_known_faces(image_gui)
+            face_locations, face_names, face_encodings = sfr.detect_known_faces(image_gui)
             for face_loc, name in zip(face_locations, face_names):
                 y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
 
@@ -214,44 +226,61 @@ def main():
                 if len(sfr.simpleFace_detector(image_gui)) == 0:
                     print('No faces detected, try again!')
                     picture_countdown = 3
-                elif len(sfr.simpleFace_detector(image_gui)) == 1:
-                    image_gui = copy.deepcopy(image_gui)
-                    new_name = input("What is your name? ")
-                    encoding = sfr.simpleFace_detector(image_gui)
-                    # Adds encoding and name to data base
-                    if args['use_database']:
-                        sfr.save_encondings(database_path, new_name, encoding)
-                        sfr.load_encodings(database_path)
-                    else:
-                        # Not using Database, image will be added to the empty Database
-                        sfr.save_encondings(no_database_path, new_name, encoding)
-                        sfr.load_encodings(no_database_path)
+                # elif len(sfr.simpleFace_detector(image_gui)) == 1:
+                #     encoding = sfr.simpleFace_detector(frame)
+                #     # print(encoding)
+                #     image_gui = copy.deepcopy(frame)
+                #     # Draw rectangle and name
+                #     cv2.putText(image_gui, 'Who is this?', (x1, y1 - 5), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
+                #     cv2.rectangle(image_gui, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    
+                #     cv2.imshow('Picture for Database', image_gui)
+                #     cv2.waitKey(30)
+                #     new_name = input("What is your name? ")
+                #     # Adds encoding and name to data base
+                #     if args['use_database']:
+                #         sfr.save_encondings(database_path, new_name, encoding)
+                #         sfr.load_encodings(database_path)
+                #     else:
+                #         # Not using Database, image will be added to the empty Database
+                #         sfr.save_encondings(no_database_path, new_name, encoding)
+                #         sfr.load_encodings(no_database_path)
 
-                    # Return picture_countdown to original value
-                    picture_countdown = 3
+                #     # Return picture_countdown to original value
+                #     picture_countdown = 3
+                #     cv2.destroyWindow('Picture for Database')
                 else:
 
                     # Detect Faces
-                    face_locations, face_names = sfr.detect_known_faces(image_gui)
+                    face_locations, face_names, face_encodings = sfr.detect_known_faces(image_gui)
                     
                     # Detect Faces0
-                    face_locations, face_names = sfr.detect_known_faces(image_gui)
+                    face_locations, face_names, face_encodings = sfr.detect_known_faces(image_gui)
+                    i = 0
                     for face_loc, name in zip(face_locations, face_names):
                         y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
 
                         if name == 'Unknown':
                             image_gui = copy.deepcopy(frame)
-                            # cv2.destroyAllWindows()
-                            
                             # Draw rectangle and name
                             cv2.putText(image_gui, 'Who is this?', (x1, y1 - 5), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
                             cv2.rectangle(image_gui, (x1, y1), (x2, y2), (0, 255, 0), 2)
                            
-                            cv2.imshow('Picture time', image_gui)
-                            cv2.waitKey(25)
-
+                            cv2.imshow('Picture for Database', image_gui)
+                            cv2.waitKey(30)
+                        
                             # Ask to add face to Database
                             new_name = input(Fore.GREEN + 'What is the name of the person inside the box? ' + Style.RESET_ALL)
+                            if args['use_database']:
+                                # print(face_encodings[i])
+                                sfr.save_encondings(database_path, new_name, face_encodings[i])
+                            else:
+                                # Not using Database, image will be added to the empty Database
+                                sfr.save_encondings(no_database_path, new_name, face_encodings[i])
+                                sfr.load_encodings(no_database_path)
+                        i += 1
+                    cv2.destroyWindow('Picture for Database')
+                    sfr.load_encodings(database_path)
                     picture_countdown = 3         
  
 
@@ -260,10 +289,7 @@ def main():
     # -----------------------------------------------------
 
     if not args['use_database']:
-        # Delete directory
-        shutil.rmtree('No_Database')
-        # Recreate directory
-        os.makedirs('No_Database')
+        os.remove(no_database_path)
 
     # After the loop release the cap object
     video.release()

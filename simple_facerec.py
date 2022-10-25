@@ -169,33 +169,25 @@ class SimpleFacerec:
         # Resize frame for a faster speed
         self.frame_resizing = 0.1
 
-    def save_encondings(self, encodings_path, names, encodings):
+    def save_encondings(self, encodings_path, name, encodings):
         
         try:
             with open(encodings_path, 'rb') as f:
-                all_face_encodings = pickle.load(f) 
-            f.close()
+                face_encodings = pickle.load(f) 
         except:
-            all_face_encodings = {}
+            face_encodings = {}
 
-        if len(encodings) == 1:
-            for encoding in encodings:
-                all_face_encodings[names] = ' '.join(map(str, encoding))
-                # print(all_face_encodings)
-        else:
-            for encoding in encodings:
-                all_face_encodings[names[encodings.index(encoding)]] = encoding
-            
-        
+        face_encodings[name] = ' '.join(map(str, encodings))
+
+        print(face_encodings)
         with open(encodings_path, 'wb') as u:
-            pickle.dump(all_face_encodings, u)
-        u.close()
+            pickle.dump(face_encodings, u)
 
     def load_encodings(self, encodings_path):
         
         try:
             self.known_face_encodings = []
-        # Load face encodings
+            # Load face encodings
             with open(encodings_path, 'rb') as f:
                 all_face_encodings = pickle.load(f)
             # print(all_face_encodings)
@@ -253,4 +245,4 @@ class SimpleFacerec:
         face_locations = np.array(face_locations)
         face_locations = face_locations / self.frame_resizing
         
-        return face_locations.astype(int), face_names
+        return face_locations.astype(int), face_names, face_encodings
