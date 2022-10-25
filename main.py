@@ -3,12 +3,10 @@
 import copy
 import cv2
 import argparse
-from simple_facerec import SimpleFacerec, Detection, Tracker, pictureDetection
-import shutil
+from simple_facerec import SimpleFacerec, Detection, Tracker
 import os
 import pyttsx3
 from colorama import Fore, Back, Style
-import time
 
 
 def main():
