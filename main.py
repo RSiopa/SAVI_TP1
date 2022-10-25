@@ -279,8 +279,9 @@ def main():
                                 sfr.save_encondings(no_database_path, new_name, face_encodings[i])
                                 sfr.load_encodings(no_database_path)
                         i += 1
-                    cv2.destroyWindow('Picture for Database')
-                    sfr.load_encodings(database_path)
+                    if not i == 0:
+                        cv2.destroyWindow('Picture for Database')
+                        sfr.load_encodings(database_path)
                     picture_countdown = 3         
  
 

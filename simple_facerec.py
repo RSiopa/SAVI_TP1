@@ -179,7 +179,7 @@ class SimpleFacerec:
 
         face_encodings[name] = ' '.join(map(str, encodings))
 
-        print(face_encodings)
+        # print(face_encodings)
         with open(encodings_path, 'wb') as u:
             pickle.dump(face_encodings, u)
 
