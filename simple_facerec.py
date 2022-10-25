@@ -2,8 +2,6 @@
 
 import face_recognition
 import cv2
-import os
-import glob
 import numpy as np
 import csv
 import pickle
@@ -58,22 +56,6 @@ class Detection(BoundingBox):
         image = cv2.putText(image_gui, 'D' + str(self.id) + ' ' + self.name, (self.x1, self.y1-5), cv2.FONT_HERSHEY_SIMPLEX,
                         1, color, 2, cv2.LINE_AA)
 
-class pictureDetection(BoundingBox):
-
-    def __init__(self, x1, y1, x2, y2, image_full, id, name, stamp):
-        super().__init__(x1, y1, x2, y2) # call the super class constructor        
-        self.id = id
-        self.name = name
-        self.stamp = stamp
-        self.image = self.extractSmallImage(image_full)
-        self.assigned_to_tracker = False
-
-    def draw(self, image_gui, color=(255, 0, 0)):
-        1==1
-        cv2.rectangle(image_gui, (self.x1, self.y1), (self.x2, self.y2), color, 3)
-
-        image = cv2.putText(image_gui, 'D' + str(self.id) + ' ' + self.name, (self.x1, self.y1-5), cv2.FONT_HERSHEY_SIMPLEX,
-                        1, color, 2, cv2.LINE_AA)
 
 class Tracker:
 
